@@ -13,7 +13,7 @@
   - [Variant calls](#variant-calls)
     - [Clair3](#clair3)
     - [DeepVariant](#deepvariant)
-    - [Variant call visualisaations](#variant-call-visualisaations)
+    - [Variant call visualisations](#variant-call-visualisations)
     - [Phasing](#phasing)
   - [Annotation](#annotation)
     - [Repeat Masking](#repeat-masking)
@@ -194,7 +194,7 @@ sudo docker run -v "${INPUT_DIR}":"/input" -v "${OUTPUT_DIR}":"/output" google/d
 
 ```
 
-### Variant call visualisaations
+### Variant call visualisations
 
 Plots of the results (Clair3 on top, DeepVariant on bottom)
 <img src="images/cl3-variant-types.png" title="Clair3" width="600"/><br>
