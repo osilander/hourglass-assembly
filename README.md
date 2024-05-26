@@ -2,12 +2,10 @@
 
 - [Long read Assembly process and notes for the hourglass dolphin Harua-tai-nui](#long-read-assembly-process-and-notes-for-the-hourglass-dolphin-harua-tai-nui)
   - [File Conversion and Basecalling](#file-conversion-and-basecalling)
-    - [Basecalling](#basecalling)
   - [Filtering](#filtering)
     - [Contaminants](#contaminants)
     - [Length and Quality](#length-and-quality)
   - [Assemblies](#assemblies)
-  - [Mitochondria](#mitochondria)
   - [Purge Diploid regions and polish](#purge-diploid-regions-and-polish)
     - [Diploid regions](#diploid-regions)
     - [Medaka polish](#medaka-polish)
@@ -18,8 +16,8 @@
     - [Variant call visualisaations](#variant-call-visualisaations)
     - [Phasing](#phasing)
   - [Annotation](#annotation)
-    - [Mask Repeats](#mask-repeats)
-    - [Braker](#braker)
+    - [Repeat Masking](#repeat-masking)
+    - [Braker Annotation](#braker-annotation)
 
 
 ## File Conversion and Basecalling
@@ -30,9 +28,6 @@
 # example
 pod5 convert fast5 ./fast5/*fast5  --output pod5s/ --one-to-one ./fast5/
 ```
-
-### Basecalling
-
 
 ```bash
 # example
@@ -66,21 +61,21 @@ seqkit grep -f readnames-nolambda.txt dolphin.fastq -o dolphin.nolambda.fastq
 
 ### Length and Quality
 
-2Kbp length and q10
+Select reads > 2 Kbp length and > q10
 
 ```bash
 # head and tailcrop at this step
 cat dolphin.fastq | chopper -l 2000 -q 10 --threads 40 --headcrop 50 --tailcrop 50 > dolphin.2k.q10.fastq
+
+# for mitochondrial assembly
+cat mtdna-mapped.fastq | chopper --minlength 14000 --maxlength 17000 -t 8 > mtdna-filter.fastq
+seqkit sample -p 0.05 mtdna-filter.fastq > mtdna-sample.fastq
 ```
 
 ## Assemblies
 
-
-## Mitochondria
-
 ```bash
-cat mtdna-mapped.fastq | chopper --minlength 14000 --maxlength 17000 -t 8 > mtdna-filter.fastq
-seqkit sample -p 0.05 mtdna-filter.fastq > mtdna-sample.fastq
+raven...
 
 ```
 
@@ -117,9 +112,15 @@ medaka_consensus -i dolphin-dorado-q10-2k.fastq -d ../haplotigs/raven-dorado-cur
 
 ## Final purged polished
 
-`contigs:895  length:2,383,719,527    min:1,396  mean:2,663,373.8  longest:39,026,300`. Via blast, the outstanding smallest contig is a contmainant from Bos taurus, remove. The smallest contig is now 24Kbp.
+contigs:895
+length:2,383,719,527
+min:1,396
+mean:2,663,373.8
+longest:39,026,300.
 
-To get mean and median depths subsample the file so that the smallest contig (24kbp) should be sampled 100 times (10,000,000 lines sampled). 
+Via blast, the outstanding smallest contig (1,396 bp) is a contaminant from Bos taurus, removed. The smallest contig is now 24Kbp, total contigs 894.
+
+To get mean and median depths, subsample the file so that the smallest contig (24kbp) should be sampled 100 times (10,000,000 lines sampled). 
 
 ```bash
 shuf -n 10000000 raven-purged-polished-clean-depth.txt > raven-purged-polished-clean-depth-sample.txt
@@ -175,8 +176,7 @@ rtg vcffilter -Z -q 14 -i merge_output.vcf.gz -o filtered-q14.vcf.gz
 
 ### DeepVariant
 
-Have to install `docker` for this.
-
+Have to install `docker` for this
 ```bash
 # docker commit: c2de0811708b6d9015ed1a2c80f02c9b70c8ce7b
 curl -fsSL https://get.docker.com/ | sh
@@ -185,7 +185,7 @@ curl -fsSL https://get.docker.com/ | sh
 BIN_VERSION="1.5.0"
 sudo docker pull google/deepvariant:"${BIN_VERSION}"
 
-## needs the full path
+## needs the full paths
 INPUT_DIR="/scratch/hourglass/variants/deepvariant-calls/input"
 
 OUTPUT_DIR="/scratch/hourglass/variants/deepvariant-calls/output"
@@ -235,13 +235,12 @@ whatshap --version 2.0
 # standard output
 
 whatshap phase -o phased.vcf --ignore-read-groups --reference=deepvariant-calls/input/raven-purged-polished.fasta cl3-dv-merged.vcf.g
-z deepvariant-calls/input/raven-purged-polished.bam                                                                                                                                                                        
-This is WhatsHap 2.0 running under Python 3.10.12                                                                                                                                                                  
+z deepvariant-calls/input/raven-purged-polished.bam                                                                                                                                                                                                                                                                                                                                  
 ```
 
 Output summary is at least partly in `variants/phased-stats.tsv`.
 
-Phasing for visualisation
+Phasing for visualisation.
 
 ```bash
 bgzip phased.vcf
@@ -253,14 +252,12 @@ whatshap haplotag --ignore-read-groups --output-threads=40 -o haplotagged.bam --
 
 ## Annotation
 
-### Mask Repeats
+### Repeat Masking
 
 ```bash
 
 RepeatMasker -pa 10 -species mammalia -html -default_search_engine nhmmer raven-purged-polished.fasta
-
 Search Engine: HMMER [ 3.3.2 (Nov 2020) ]
-
 Using Master RepeatMasker Database: /home/olin/software/RepeatMasker/Libraries/RepeatMaskerLib.h5
 
 Title    : Dfam
@@ -269,7 +266,6 @@ Date     : 2023-01-11
 Families : 19,768
 
 Species/Taxa Search:
-
 Mammalia [NCBI Taxonomy ID: 40674]
 
 Lineage: root;cellular organisms;Eukaryota;Opisthokonta;Metazoa;Eumetazoa;Bilateria;Deuterostomia;Chordata;Craniata <chordates>;Vertebrata <vertebrates>;Gnathostomata <vertebrates>;Teleostomi;Euteleostomi
@@ -279,14 +275,13 @@ Lineage: root;cellular organisms;Eukaryota;Opisthokonta;Metazoa;Eumetazoa;Bilate
 analyzing file raven-purged-polished.fasta
 ```
 
-
 Make `.bed` file from repeat annotations for intersection with variant calls. RM2bed from [here](https://github.com/rmhubley/RepeatMasker/blob/master/util/RM2Bed.py).
 
 ```bash
 python RM2Bed.py raven-purged-polished.fasta.out
 ```
 
-### Braker
+### Braker Annotation
 
 Get the vertebrate OrthoDb from [here](https://bioinf.uni-greifswald.de/bioinf/partitioned_odb11/)
 
@@ -296,6 +291,6 @@ Get the vertebrate OrthoDb from [here](https://bioinf.uni-greifswald.de/bioinf/p
 `singularity` notes are [here](https://hub.docker.com/r/teambraker/braker3)
 
 ```bash
-## general format
+## the general format to find variant calls within intron (or exons)
 bedtools intersect -a cl3-dv-merged.vcf.gz -b braker.introns1.bed -header > cl3-dv-merged.introns.vcf
 ```
