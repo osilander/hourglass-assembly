@@ -17,8 +17,7 @@ contigs <- read.table(file="./data/fig2-contig-data-q20.txt", header=T)
 #################
 if(fig2) {
 	##############
-	### high quality mappers >q20
-	contigs <- read.table(file="./data/fig2-contig-data-q20.txt", header=T)
+	### high quality mappers >q20 file read in above
 	plot.col <- viridis(100)
 	min.num <- min(contigs$uniq.kmer)
 	max.num <- max(contigs$uniq.kmer)
@@ -70,10 +69,6 @@ if(fig2) {
 	text(0.37,14,labels="% unique\n21-mers\nin contig", cex=0.7)
 	text(rep(0.33,4), c(4,14,24,34), labels=c(10,40,70,100), cex=0.8, pos=2)
 	
-	#rect(rep(0.31,100), seq(4,34,length.out=101)[1:100], rep(0.321,100), seq(4,34,length.out=101)[2:101], col=rev(plot.col),border=NA)
-	#text(0.361,14,labels="% unique\n21-mers\nin contig", cex=0.7)
-	#text(c(0.312,0.312), c(4,34), labels=c(10,100), cex=0.8, pos=4)
-	
 	mtext("C",side=2, line=3, adj=1.5, padj=-8., cex=1.4)
 	
 	dev.off()
@@ -87,10 +82,8 @@ if(fig2) {
 #################
 if(fig3) {
 	library(UpSetR)
-	patterns <- c("miss")
-	patterns.names <- c("Missing")
-	#patterns <- c("miss","frag","dupl","single")
-	#patterns.names <- c("Missing","Fragmented","Duplicated","Single")
+	patterns <- c("miss","frag","dupl","single")
+	patterns.names <- c("Missing","Fragmented","Duplicated","Single")
 	plot.list <- list()
 	m.list <- list()
 	for (i in 1:length(patterns)) {
@@ -117,7 +110,6 @@ if(fig3) {
 	}
 	if(0) {
 		### plots must be done out of the main file unknown reasons. Copy to the R command line:
-		setwd("~/Documents/Manuscripts/Current/dolphin")
 		# missing
 		i <- 1
 		pdf(file=paste("./figures/Figure3-",patterns[i],".pdf", sep=""), height=5, width=7)
