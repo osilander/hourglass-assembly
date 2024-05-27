@@ -18,6 +18,7 @@
   - [Annotation](#annotation)
     - [Repeat Masking](#repeat-masking)
     - [Braker Annotation](#braker-annotation)
+  - [Figure plotting](#figure-plotting)
 
 
 ## File Conversion and Basecalling
@@ -294,3 +295,7 @@ Get the vertebrate OrthoDb from [here](https://bioinf.uni-greifswald.de/bioinf/p
 ## the general format to find variant calls within intron (or exons)
 bedtools intersect -a cl3-dv-merged.vcf.gz -b braker.introns1.bed -header > cl3-dv-merged.introns.vcf
 ```
+
+## Figure plotting
+
+The data necessary for figure plotting and the plotting code itse;f are available. It should be possible to download the R code and the `./data` folder and run the R code. Some library installs may be necessary. In addition, the proper working directory `setwd()` will need to be set.
