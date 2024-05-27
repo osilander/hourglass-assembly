@@ -298,4 +298,4 @@ bedtools intersect -a cl3-dv-merged.vcf.gz -b braker.introns1.bed -header > cl3-
 
 ## Figure plotting
 
-The data necessary for figure plotting and the plotting code itse;f are available. It should be possible to download the R code and the `./data` folder and run the R code. Some library installs may be necessary. In addition, the proper working directory `setwd()` will need to be set.
+The data necessary for figure plotting and the plotting code itself are available. It should be possible to download the R code and the `./data` folder and run the R code. Some library installs may be necessary. In addition, the proper working directory `setwd()` will need to be set.
